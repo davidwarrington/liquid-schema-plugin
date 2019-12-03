@@ -1,0 +1,15 @@
+{
+  "name": "liquid-schema-plugin",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "fs-extra": "^8.1.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-sources": "^1.4.3"
+  },
+  "scripts": {
+    "build": "webpack"
+  }
+}
