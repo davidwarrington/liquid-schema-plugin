@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs-extra');
 const {RawSource} = require('webpack-sources');
+const {asString} = require('webpack').Template;
 
 const PLUGIN_NAME = 'Liquid Schema Plugin';
 
@@ -65,6 +66,12 @@ module.exports = class LiquidSchemaPlugin {
             path.resolve(this.options.schemaDirectory, importableFilePath)
         );
 
-        return new RawSource(fileContents.replace(replaceableSchemaRegex, JSON.stringify(importedFile, null, 4)));
+        return new RawSource(
+            fileContents.replace(replaceableSchemaRegex, asString([
+                '{% schema %}',
+                JSON.stringify(importedFile, null, 4),
+                '{% endschema %}'
+            ]))
+        );
     }
 }
