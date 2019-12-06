@@ -20,10 +20,14 @@ module.exports = class LiquidSchemaPlugin {
 
         compilation.contextDependencies.add(this.options.from);
 
+        const preTransformCache = [...Object.keys(require.cache)];
+
         return Promise.all(
             files.map(async file => {
                 const fileLocation = path.resolve(this.options.from, file);
                 const fileStat = await fs.stat(fileLocation);
+
+                compilation.contextDependencies.add(fileLocation);
 
                 if (fileStat.isFile() && path.extname(file) === '.liquid') {
                     const outputKey = this._getOutputKey(
@@ -35,7 +39,16 @@ module.exports = class LiquidSchemaPlugin {
                     );
                 }
             })
-        );
+        )
+        .then(() => {
+            const postTransformCache = [...Object.keys(require.cache)];
+            postTransformCache
+                .filter(module => !preTransformCache.includes(module))
+                .forEach(module => {
+                    compilation.contextDependencies.add(module);
+                    delete require.cache[module];
+                });
+        });
     }
 
     _getOutputKey(liquidSourcePath, compilationOutput) {
@@ -54,7 +67,7 @@ module.exports = class LiquidSchemaPlugin {
     async _replaceSchemaTags(fileLocation) {
         const fileContents = await fs.readFile(fileLocation, 'utf-8');
         const replaceableSchemaRegex = /{%-? ?schema ('.*'|".*") ?-?%}\s*{%-? ?endschema ?-?%}/;
-        const fileContainsReplaceableSchemaRegex = replaceableSchemaRegex.test(fileContents)
+        const fileContainsReplaceableSchemaRegex = replaceableSchemaRegex.test(fileContents);
 
         if (!fileContainsReplaceableSchemaRegex) {
             return new RawSource(fileContents);
@@ -62,14 +75,18 @@ module.exports = class LiquidSchemaPlugin {
 
         let [, importableFilePath] = fileContents.match(replaceableSchemaRegex);
         importableFilePath = importableFilePath.replace(/(^('|"))|(('|")$)/g, '');
-        const importedFile = require(
+        const importedSchema = require(
             path.resolve(this.options.schemaDirectory, importableFilePath)
         );
+
+        if (typeof importedSchema !== 'object') {
+            console.log(`Error! Expected an object from ${importableFilePath}`)
+        }
 
         return new RawSource(
             fileContents.replace(replaceableSchemaRegex, asString([
                 '{% schema %}',
-                JSON.stringify(importedFile, null, 4),
+                JSON.stringify(importedSchema, null, 4),
                 '{% endschema %}'
             ]))
         );
