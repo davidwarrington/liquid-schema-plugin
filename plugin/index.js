@@ -1,12 +1,19 @@
-const path = require('path');
 const fs = require('fs-extra');
+const log = require('webpack-log');
+const path = require('path');
+const validate = require('schema-utils');
 const {RawSource} = require('webpack-sources');
 const {asString} = require('webpack').Template;
 
+const schema = require('./schema');
+
 const PLUGIN_NAME = 'Liquid Schema Plugin';
+
+const logger = log({ name: PLUGIN_NAME });
 
 module.exports = class LiquidSchemaPlugin {
     constructor(options = {}) {
+        validate(schema, options, { name: PLUGIN_NAME });
         this.options = options;
     }
 
@@ -75,12 +82,12 @@ module.exports = class LiquidSchemaPlugin {
 
         let [, importableFilePath] = fileContents.match(replaceableSchemaRegex);
         importableFilePath = importableFilePath.replace(/(^('|"))|(('|")$)/g, '');
-        const importedSchema = require(
-            path.resolve(this.options.schemaDirectory, importableFilePath)
-        );
+        importableFilePath = path.resolve(this.options.schemaDirectory, importableFilePath);
+        const importedSchema = require(importableFilePath);
 
         if (typeof importedSchema !== 'object') {
-            console.log(`Error! Expected an object from ${importableFilePath}`)
+            const fileName = path.basename(require.resolve(importableFilePath));
+            logger.error(`Error! Expected an object to be exported from ${fileName}`);
         }
 
         return new RawSource(

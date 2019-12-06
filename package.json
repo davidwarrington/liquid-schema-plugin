@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "dependencies": {
+    "schema-utils": "^2.6.1",
+    "webpack-log": "^3.0.1"
+  },
   "devDependencies": {
     "fs-extra": "^8.1.0",
     "webpack": "^4.41.2",
@@ -10,6 +14,7 @@
     "webpack-sources": "^1.4.3"
   },
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "watch": "webpack --watch"
   }
 }
