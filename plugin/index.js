@@ -53,6 +53,7 @@ module.exports = class LiquidSchemaPlugin {
                 .filter(module => !preTransformCache.includes(module))
                 .forEach(module => {
                     compilation.contextDependencies.add(module);
+                    compilation.fileDependencies.add(module);
                     delete require.cache[module];
                 });
         });
