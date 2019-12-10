@@ -73,6 +73,7 @@ module.exports = class LiquidSchemaPlugin {
     }
 
     async _replaceSchemaTags(fileLocation) {
+        const fileName = path.basename(fileLocation, '.liquid');
         const fileContents = await fs.readFile(fileLocation, 'utf-8');
         const replaceableSchemaRegex = /{%-? ?schema ('.*'|".*") ?-?%}\s*{%-? ?endschema ?-?%}/;
         const fileContainsReplaceableSchemaRegex = replaceableSchemaRegex.test(fileContents);
@@ -86,7 +87,12 @@ module.exports = class LiquidSchemaPlugin {
         importableFilePath = path.resolve(this.options.schemaDirectory, importableFilePath);
         const importedSchema = require(importableFilePath);
 
-        if (typeof importedSchema !== 'object') {
+        let schema = importedSchema;
+        if (typeof importedSchema === 'function') {
+            schema = importedSchema(fileName);
+        }
+
+        if (typeof schema !== 'object') {
             const fileName = path.basename(require.resolve(importableFilePath));
             logger.error(`Error! Expected an object to be exported from ${fileName}`);
         }
@@ -94,7 +100,7 @@ module.exports = class LiquidSchemaPlugin {
         return new RawSource(
             fileContents.replace(replaceableSchemaRegex, asString([
                 '{% schema %}',
-                JSON.stringify(importedSchema, null, 4),
+                JSON.stringify(schema, null, 4),
                 '{% endschema %}'
             ]))
         );

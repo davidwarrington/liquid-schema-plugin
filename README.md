@@ -61,7 +61,3 @@ module.exports = {
     blocks: [banner]
 }
 ```
-
-## Planned Features
-
-- Support for dynamically altering schema based on section data.
