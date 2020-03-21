@@ -45,10 +45,10 @@ module.exports = {
 
 ## Usage
 
-Add the following to a section file, where `'filename'` is the location of the schema relative to the `schemaDirectory` defined in the plugin settings:
+Add the following to a section file, where `'filepath'` is the location of the schema relative to the `schemaDirectory` defined in the plugin settings:
 ```liquid
 // section.liquid
-{% schema 'schema' %}
+{% schema 'filepath' %}
 {% endschema %}
 ```
 
@@ -60,4 +60,15 @@ module.exports = {
     name: 'Section',
     blocks: [banner]
 }
+```
+
+Alternatively, the schema file can export a function, in which case it takes the section filename as the first argument.
+```js
+// schema.js
+const banner = require('./components/banner')
+
+module.exports = filename => ({
+    name: filename,
+    blocks: [banner]
+})
 ```
