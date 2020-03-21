@@ -75,7 +75,7 @@ module.exports = class LiquidSchemaPlugin {
     async _replaceSchemaTags(fileLocation) {
         const fileName = path.basename(fileLocation, '.liquid');
         const fileContents = await fs.readFile(fileLocation, 'utf-8');
-        const replaceableSchemaRegex = /{%-? ?schema ('.*'|".*") ?-?%}\s*{%-? ?endschema ?-?%}/;
+        const replaceableSchemaRegex = /{%-?\s*schema\s*('.*'|".*")\s*-?%}\s*{%-?\s*endschema\s*-?%}/;
         const fileContainsReplaceableSchemaRegex = replaceableSchemaRegex.test(fileContents);
 
         if (!fileContainsReplaceableSchemaRegex) {
