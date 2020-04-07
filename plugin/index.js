@@ -19,27 +19,27 @@ module.exports = class LiquidSchemaPlugin {
     }
 
     async buildSchema(compilation) {
-        const files = await fs.readdir(this.options.from);
+        const files = await fs.readdir(this.options.from.liquid);
         const compilationOutput = compilation.compiler.outputPath;
 
-        compilation.contextDependencies.add(this.options.from);
+        compilation.contextDependencies.add(this.options.from.liquid);
 
         const preTransformCache = [...Object.keys(require.cache)];
 
         return Promise.all(
             files.map(async file => {
-                const fileLocation = path.resolve(this.options.from, file);
+                const fileLocation = path.resolve(this.options.from.liquid, file);
                 const fileStat = await fs.stat(fileLocation);
 
                 compilation.contextDependencies.add(fileLocation);
 
                 if (fileStat.isFile() && path.extname(file) === '.liquid') {
                     const outputKey = this._getOutputKey(
-                        path.resolve(this.options.from, file),
+                        path.resolve(this.options.from.liquid, file),
                         compilationOutput
                     );
                     compilation.assets[outputKey] = await this._replaceSchemaTags(
-                        path.resolve(this.options.from, file)
+                        path.resolve(this.options.from.liquid, file)
                     );
                 }
             })
@@ -58,7 +58,7 @@ module.exports = class LiquidSchemaPlugin {
 
     _getOutputKey(liquidSourcePath, compilationOutput) {
         const fileName = path.relative(
-            this.options.from,
+            this.options.from.liquid,
             liquidSourcePath
         );
         const relativeOutputPath = path.relative(
@@ -81,7 +81,7 @@ module.exports = class LiquidSchemaPlugin {
 
         let [, importableFilePath, , contents] = fileContents.match(replaceableSchemaRegex);
         importableFilePath = importableFilePath.replace(/(^('|"))|(('|")$)/g, '');
-        importableFilePath = path.resolve(this.options.schemaDirectory, importableFilePath);
+        importableFilePath = path.resolve(this.options.from.schema, importableFilePath);
 
         let importedSchema;
         try {

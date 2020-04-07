@@ -16,8 +16,10 @@ module.exports = (context, pluginConfig = {}, webpackConfig = {}) => {
         plugins: [
             new plugin({
                 to: path.join(contextDir, 'output'),
-                from: contextDir,
-                schemaDirectory: path.join(contextDir, 'schema'),
+                from: {
+                    liquid: contextDir,
+                    schema: path.join(contextDir, 'schema')
+                },
                 ...pluginConfig
             })
         ],

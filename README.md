@@ -15,9 +15,11 @@ module.exports = {
     'webpack.extend': {
         plugins: [
             new LiquidSchemaPlugin({
-                from: './src/sections',
-                to: './dist/sections',
-                schemaDirectory: './src/schema'
+                from: {
+                    liquid: './src/sections',
+                    schema: './src/schema'
+                },
+                to: './dist/sections'
             })
         ]
     }
@@ -35,9 +37,11 @@ module.exports = {
     plugins: [
         // ...
         new LiquidSchemaPlugin({
-            from: './src/sections',
-            to: './dist/sections',
-            schemaDirectory: './src/schema'
+            from: {
+                liquid: './src/sections',
+                schema: './src/schema'
+            },
+            to: './dist/sections'
         })
     ]
 }

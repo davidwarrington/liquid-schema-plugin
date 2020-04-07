@@ -2,17 +2,27 @@ module.exports = {
     type: 'object',
     required: [
         'from',
-        'schemaDirectory',
         'to'
     ],
     properties: {
         from: {
             description: 'Input directory for liquid files',
-            type: 'string'
-        },
-        schemaDirectory: {
-            description: 'Input directory for schema files',
-            type: 'string'
+            type: 'object',
+            required: [
+                'liquid',
+                'schema'
+            ],
+            properties: {
+                liquid: {
+                    description: 'Input directory for liquid files',
+                    type: 'string'
+                },
+                schema: {
+                    description: 'Input directory for schema files',
+                    type: 'string'
+                }
+            },
+            additionalProperties: false
         },
         to: {
             description: 'Output directory for liquid files',
