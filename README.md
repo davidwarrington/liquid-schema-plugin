@@ -49,8 +49,8 @@ Add the following to a section file, where `'filepath'` is the location of the s
 ```liquid
 // section.liquid
 {% schema 'filepath' %}
-{% endschema %}
 ```
+Note: It doesn't require an `endschema` tag.
 
 ```js
 // schema.js
@@ -62,7 +62,7 @@ module.exports = {
 }
 ```
 
-Alternatively, the schema file can export a function, in which case it takes the section filename as the first argument and the contents of the section as the second, like so:
+Alternatively, the schema file can export a function, in which case it takes the section filename as the first argument and the contents of the schema tags as the second, like so:
 ```liquid
 // section.liquid
 {% schema 'filepath' %}
