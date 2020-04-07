@@ -62,13 +62,23 @@ module.exports = {
 }
 ```
 
-Alternatively, the schema file can export a function, in which case it takes the section filename as the first argument.
+Alternatively, the schema file can export a function, in which case it takes the section filename as the first argument and the contents of the section as the second, like so:
+```liquid
+// section.liquid
+{% schema 'filepath' %}
+{
+    "settings": [...]
+}
+{% endschema %}
+```
+
 ```js
 // schema.js
 const banner = require('./components/banner')
 
-module.exports = filename => ({
+module.exports = (filename, contents) => ({
     name: filename,
+    settings: contents.settings,
     blocks: [banner]
 })
 ```
