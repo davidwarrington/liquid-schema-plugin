@@ -85,7 +85,13 @@ module.exports = class LiquidSchemaPlugin {
         let [, importableFilePath] = fileContents.match(replaceableSchemaRegex);
         importableFilePath = importableFilePath.replace(/(^('|"))|(('|")$)/g, '');
         importableFilePath = path.resolve(this.options.schemaDirectory, importableFilePath);
-        const importedSchema = require(importableFilePath);
+        let importedSchema;
+        try {
+            importedSchema = require(importableFilePath);
+        } catch(error) {
+            logger.error(`Error! ${fileName} export could not be parsed`);
+            return;
+        }
 
         let schema = importedSchema;
         if (typeof importedSchema === 'function') {
