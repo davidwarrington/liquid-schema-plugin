@@ -1,1 +1,1 @@
-module.exports = 'non-object'
+module.exports = 'non-object';

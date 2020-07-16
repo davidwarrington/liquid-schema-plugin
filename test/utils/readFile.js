@@ -1,5 +1,5 @@
-const fs = require('fs')
+const fs = require('fs');
 
 module.exports = file => {
-    return fs.readFileSync(file, { encoding: 'utf-8' })
-}
+    return fs.readFileSync(file, { encoding: 'utf-8' });
+};

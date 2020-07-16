@@ -4,7 +4,7 @@ module.exports = {
         {
             label: 'Title',
             id: 'title',
-            type: 'text'
-        }
-    ]
-}
+            type: 'text',
+        },
+    ],
+};

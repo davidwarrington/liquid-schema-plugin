@@ -4,8 +4,8 @@ module.exports = (filename, contents) => ({
         {
             label: 'Title',
             id: 'title',
-            type: 'text'
+            type: 'text',
         },
-        ...contents.settings
-    ]
-})
+        ...contents.settings,
+    ],
+});

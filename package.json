@@ -30,10 +30,13 @@
     "webpack-sources": "^1.4.3"
   },
   "devDependencies": {
+    "@strawberrydigital/eslint-config": "^1.0.0",
+    "eslint": "^7.4.0",
     "jest": "^25.1.0",
     "webpack-cli": "^3.3.10"
   },
   "scripts": {
+    "lint": "eslint . --ext .js",
     "test": "jest",
     "test:watch": "jest --watch"
   }

@@ -1,0 +1,5 @@
+node_modules/
+
+test/fixtures/**/index.js
+test/fixtures/**/invalid-*/schema/
+test/fixtures/**/output/

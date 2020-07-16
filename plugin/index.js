@@ -1,21 +1,24 @@
 const fs = require('fs-extra');
 const path = require('path');
 const validate = require('schema-utils');
-const {RawSource} = require('webpack-sources');
-const {asString} = require('webpack').Template;
+const { RawSource } = require('webpack-sources');
+const { asString } = require('webpack').Template;
 
-const schema = require('./schema');
+const optionsSchema = require('./schema');
 
 const PLUGIN_NAME = 'Liquid Schema Plugin';
 
 module.exports = class LiquidSchemaPlugin {
     constructor(options = {}) {
-        validate(schema, options, { name: PLUGIN_NAME });
+        validate(optionsSchema, options, { name: PLUGIN_NAME });
         this.options = options;
     }
 
     apply(compiler) {
-        compiler.hooks.emit.tapPromise(PLUGIN_NAME, this.buildSchema.bind(this));
+        compiler.hooks.emit.tapPromise(
+            PLUGIN_NAME,
+            this.buildSchema.bind(this)
+        );
     }
 
     async buildSchema(compilation) {
@@ -42,24 +45,24 @@ module.exports = class LiquidSchemaPlugin {
                         fileLocation
                     );
 
-                    const outputKey = this._getOutputKey(
+                    const outputKey = this.getOutputKey(
                         fileLocation,
                         compilationOutput
                     );
 
                     try {
+                        // eslint-disable-next-line no-param-reassign
                         compilation.assets[
                             outputKey
-                        ] = await this._replaceSchemaTags(fileLocation);
-                    } catch(error) {
+                        ] = await this.replaceSchemaTags(fileLocation);
+                    } catch (error) {
                         compilation.errors.push(
                             new Error(`./${relativeFilePath}\n\n${error}`)
                         );
                     }
                 }
             })
-        )
-        .then(() => {
+        ).then(() => {
             const postTransformCache = [...Object.keys(require.cache)];
             postTransformCache
                 .filter(module => !preTransformCache.includes(module))
@@ -71,7 +74,7 @@ module.exports = class LiquidSchemaPlugin {
         });
     }
 
-    _getOutputKey(liquidSourcePath, compilationOutput) {
+    getOutputKey(liquidSourcePath, compilationOutput) {
         const fileName = path.relative(
             this.options.from.liquid,
             liquidSourcePath
@@ -84,24 +87,36 @@ module.exports = class LiquidSchemaPlugin {
         return path.join(relativeOutputPath, fileName);
     }
 
-    async _replaceSchemaTags(fileLocation) {
+    async replaceSchemaTags(fileLocation) {
         const fileName = path.basename(fileLocation, '.liquid');
         const fileContents = await fs.readFile(fileLocation, 'utf-8');
         const replaceableSchemaRegex = /{%-?\s*schema\s*('.*'|".*")\s*-?%}(([\s\S]*){%-?\s*endschema\s*-?%})?/;
-        const fileContainsReplaceableSchemaRegex = replaceableSchemaRegex.test(fileContents);
+        const fileContainsReplaceableSchemaRegex = replaceableSchemaRegex.test(
+            fileContents
+        );
 
         if (!fileContainsReplaceableSchemaRegex) {
             return new RawSource(fileContents);
         }
 
-        let [match, importableFilePath, , contents] = fileContents.match(replaceableSchemaRegex);
-        importableFilePath = importableFilePath.replace(/(^('|"))|(('|")$)/g, '');
-        importableFilePath = path.resolve(this.options.from.schema, importableFilePath);
+        // eslint-disable-next-line prefer-const
+        let [match, importableFilePath, , contents] = fileContents.match(
+            replaceableSchemaRegex
+        );
+        importableFilePath = importableFilePath.replace(
+            /(^('|"))|(('|")$)/g,
+            ''
+        );
+        importableFilePath = path.resolve(
+            this.options.from.schema,
+            importableFilePath
+        );
 
         let importedSchema;
         try {
+            // eslint-disable-next-line global-require, import/no-dynamic-require
             importedSchema = require(importableFilePath);
-        } catch(error) {
+        } catch (error) {
             throw [
                 match,
                 '^',
@@ -111,9 +126,9 @@ module.exports = class LiquidSchemaPlugin {
         }
 
         try {
-            contents = JSON.parse(contents)
-        } catch(error) {
-            contents = null
+            contents = JSON.parse(contents);
+        } catch (error) {
+            contents = null;
         }
 
         let schema = importedSchema;
@@ -131,11 +146,14 @@ module.exports = class LiquidSchemaPlugin {
         }
 
         return new RawSource(
-            fileContents.replace(replaceableSchemaRegex, asString([
-                '{% schema %}',
-                JSON.stringify(schema, null, 4),
-                '{% endschema %}'
-            ]))
+            fileContents.replace(
+                replaceableSchemaRegex,
+                asString([
+                    '{% schema %}',
+                    JSON.stringify(schema, null, 4),
+                    '{% endschema %}',
+                ])
+            )
         );
     }
-}
+};

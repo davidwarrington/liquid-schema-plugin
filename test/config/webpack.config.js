@@ -1,9 +1,9 @@
-const path = require('path')
-const plugin = require('../../plugin')
+const path = require('path');
+const Plugin = require('../../plugin');
 
 module.exports = (context, pluginConfig = {}, webpackConfig = {}) => {
-    const testDir = path.join(__dirname, '..')
-    const contextDir = path.join(testDir, 'fixtures', context)
+    const testDir = path.join(__dirname, '..');
+    const contextDir = path.join(testDir, 'fixtures', context);
 
     return {
         cache: false,
@@ -11,18 +11,18 @@ module.exports = (context, pluginConfig = {}, webpackConfig = {}) => {
         entry: './index',
         mode: 'production',
         output: {
-            path: path.join(testDir, 'fixtures', context, 'output')
+            path: path.join(testDir, 'fixtures', context, 'output'),
         },
         plugins: [
-            new plugin({
+            new Plugin({
                 to: path.join(contextDir, 'output'),
                 from: {
                     liquid: contextDir,
-                    schema: path.join(contextDir, 'schema')
+                    schema: path.join(contextDir, 'schema'),
                 },
-                ...pluginConfig
-            })
+                ...pluginConfig,
+            }),
         ],
-        ...webpackConfig
-    }
-}
+        ...webpackConfig,
+    };
+};
