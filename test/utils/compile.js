@@ -31,5 +31,4 @@ module.exports = (filename, callback) => {
         expect(compilerOutput).toEqual(expectedCompilerOutput)
         callback()
     })
-    .catch(error => callback(error))
 }

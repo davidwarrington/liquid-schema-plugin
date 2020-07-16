@@ -28,19 +28,34 @@ module.exports = class LiquidSchemaPlugin {
 
         return Promise.all(
             files.map(async file => {
-                const fileLocation = path.resolve(this.options.from.liquid, file);
+                const fileLocation = path.resolve(
+                    this.options.from.liquid,
+                    file
+                );
                 const fileStat = await fs.stat(fileLocation);
 
                 compilation.contextDependencies.add(fileLocation);
 
                 if (fileStat.isFile() && path.extname(file) === '.liquid') {
+                    const relativeFilePath = path.relative(
+                        compilation.options.context,
+                        fileLocation
+                    );
+
                     const outputKey = this._getOutputKey(
-                        path.resolve(this.options.from.liquid, file),
+                        fileLocation,
                         compilationOutput
                     );
-                    compilation.assets[outputKey] = await this._replaceSchemaTags(
-                        path.resolve(this.options.from.liquid, file)
-                    );
+
+                    try {
+                        compilation.assets[
+                            outputKey
+                        ] = await this._replaceSchemaTags(fileLocation);
+                    } catch(error) {
+                        compilation.errors.push(
+                            new Error(`./${relativeFilePath}\n\n${error}`)
+                        );
+                    }
                 }
             })
         )
@@ -79,7 +94,7 @@ module.exports = class LiquidSchemaPlugin {
             return new RawSource(fileContents);
         }
 
-        let [, importableFilePath, , contents] = fileContents.match(replaceableSchemaRegex);
+        let [match, importableFilePath, , contents] = fileContents.match(replaceableSchemaRegex);
         importableFilePath = importableFilePath.replace(/(^('|"))|(('|")$)/g, '');
         importableFilePath = path.resolve(this.options.from.schema, importableFilePath);
 
@@ -87,7 +102,12 @@ module.exports = class LiquidSchemaPlugin {
         try {
             importedSchema = require(importableFilePath);
         } catch(error) {
-            throw new Error(`Error! ${fileName} export could not be parsed`);
+            throw [
+                match,
+                '^',
+                `      File to import not found or unreadable: ${importableFilePath}`,
+                `      in ${fileLocation}`,
+            ].join('\n');
         }
 
         try {
@@ -102,8 +122,12 @@ module.exports = class LiquidSchemaPlugin {
         }
 
         if (typeof schema !== 'object') {
-            const fileName = path.basename(require.resolve(importableFilePath));
-            throw new Error(`Error! Expected an object to be exported from ${fileName}`);
+            throw [
+                schema,
+                '^',
+                `      Schema expected to be of type "object"`,
+                `      in ${require.resolve(importableFilePath)}`,
+            ].join('\n');
         }
 
         return new RawSource(
