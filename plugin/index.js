@@ -54,7 +54,10 @@ module.exports = class LiquidSchemaPlugin {
                         // eslint-disable-next-line no-param-reassign
                         compilation.assets[
                             outputKey
-                        ] = await this.replaceSchemaTags(fileLocation);
+                        ] = await this.replaceSchemaTags(
+                            fileLocation,
+                            compilation
+                        );
                     } catch (error) {
                         compilation.errors.push(
                             new Error(`./${relativeFilePath}\n\n${error}`)
@@ -87,7 +90,7 @@ module.exports = class LiquidSchemaPlugin {
         return path.join(relativeOutputPath, fileName);
     }
 
-    async replaceSchemaTags(fileLocation) {
+    async replaceSchemaTags(fileLocation, compilation) {
         const fileName = path.basename(fileLocation, '.liquid');
         const fileContents = await fs.readFile(fileLocation, 'utf-8');
         const replaceableSchemaRegex = /{%-?\s*schema\s*('.*'|".*")\s*-?%}(([\s\S]*){%-?\s*endschema\s*-?%})?/;
@@ -112,6 +115,8 @@ module.exports = class LiquidSchemaPlugin {
             importableFilePath
         );
 
+        compilation.fileDependencies.add(require.resolve(importableFilePath));
+
         let importedSchema;
         try {
             // eslint-disable-next-line global-require, import/no-dynamic-require
@@ -122,6 +127,7 @@ module.exports = class LiquidSchemaPlugin {
                 '^',
                 `      File to import not found or unreadable: ${importableFilePath}`,
                 `      in ${fileLocation}`,
+                Date.now(),
             ].join('\n');
         }
 
