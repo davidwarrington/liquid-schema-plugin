@@ -75,7 +75,7 @@ module.exports = {
 }
 ```
 
-Alternatively, the schema file can export a function, in which case it takes the section filename as the first argument and the contents of the schema tags as the second, like so:
+Alternatively, the schema file can export a function, in which case it takes the section filename as the first argument and the contents of the schema tags (after running it through JSON.parse) as the second, like so:
 ```liquid
 // section.liquid
 {% schema 'filepath' %}
