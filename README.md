@@ -3,6 +3,15 @@
 This plugin allows Shopify section schema to be imported from JavaScript or JSON files into Liquid sections. It is compatible with any Webpack based build system. This allows you to build partials that can be shared across multiple sections and applied in different contexts such as section blocks or settings.
 
 ## Installation
+Install using yarn:
+```shell
+yarn add --dev liquid-schema-plugin
+```
+
+Or npm:
+```shell
+npm install --save-dev liquid-schema-plugin
+```
 
 ### Slate v1
 
