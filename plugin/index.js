@@ -127,7 +127,6 @@ module.exports = class LiquidSchemaPlugin {
                 '^',
                 `      File to import not found or unreadable: ${importableFilePath}`,
                 `      in ${fileLocation}`,
-                Date.now(),
             ].join('\n');
         }
 
