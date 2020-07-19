@@ -1,6 +1,6 @@
 {
   "name": "liquid-schema-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "plugin/index.js",
   "license": "MIT",
   "files": [
