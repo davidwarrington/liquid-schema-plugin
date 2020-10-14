@@ -95,3 +95,6 @@ module.exports = (filename, contents) => ({
     blocks: [banner]
 })
 ```
+
+## Further Reading
+If you'd like to learn more about how you can benefit from using this plugin, you can read about making schemas easier to maintain, creating repeatable groups of schema settings and making your schemas modular in [this blog post](https://ellodave.dev/blog/2020/10/14/building-shopify-section-schemas-with-javascript).
