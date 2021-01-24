@@ -39,6 +39,7 @@ module.exports = class LiquidSchemaPlugin {
         const compilationOutput = compilation.compiler.outputPath;
 
         compilation.contextDependencies.add(this.options.from.liquid);
+        compilation.contextDependencies.add(this.options.from.schema);
 
         const preTransformCache = [...Object.keys(require.cache)];
 
@@ -49,8 +50,6 @@ module.exports = class LiquidSchemaPlugin {
                     file
                 );
                 const fileStat = await fs.stat(fileLocation);
-
-                compilation.contextDependencies.add(fileLocation);
 
                 if (fileStat.isFile() && path.extname(file) === '.liquid') {
                     const relativeFilePath = path.relative(
@@ -83,7 +82,7 @@ module.exports = class LiquidSchemaPlugin {
             postTransformCache
                 .filter(module => !preTransformCache.includes(module))
                 .forEach(module => {
-                    compilation.contextDependencies.add(module);
+                    compilation.contextDependencies.add(path.dirname(module));
                     compilation.fileDependencies.add(module);
                     delete require.cache[module];
                 });
