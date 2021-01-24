@@ -15,10 +15,23 @@ module.exports = class LiquidSchemaPlugin {
     }
 
     apply(compiler) {
-        compiler.hooks.emit.tapPromise(
-            PLUGIN_NAME,
-            this.buildSchema.bind(this)
-        );
+        const isWebpack4 = !compiler.webpack;
+
+        if (isWebpack4) {
+            compiler.hooks.emit.tapPromise(
+                PLUGIN_NAME,
+                this.buildSchema.bind(this)
+            );
+
+            return;
+        }
+
+        compiler.hooks.thisCompilation.tap(PLUGIN_NAME, compilation => {
+            compilation.hooks.processAssets.tapPromise(
+                PLUGIN_NAME,
+                this.buildSchema.bind(this, compilation)
+            );
+        });
     }
 
     async buildSchema(compilation) {
