@@ -15,10 +15,23 @@ module.exports = class LiquidSchemaPlugin {
     }
 
     apply(compiler) {
-        compiler.hooks.emit.tapPromise(
-            PLUGIN_NAME,
-            this.buildSchema.bind(this)
-        );
+        const isWebpack4 = !compiler.webpack;
+
+        if (isWebpack4) {
+            compiler.hooks.emit.tapPromise(
+                PLUGIN_NAME,
+                this.buildSchema.bind(this)
+            );
+
+            return;
+        }
+
+        compiler.hooks.thisCompilation.tap(PLUGIN_NAME, compilation => {
+            compilation.hooks.processAssets.tapPromise(
+                PLUGIN_NAME,
+                this.buildSchema.bind(this, compilation)
+            );
+        });
     }
 
     async buildSchema(compilation) {
@@ -26,6 +39,7 @@ module.exports = class LiquidSchemaPlugin {
         const compilationOutput = compilation.compiler.outputPath;
 
         compilation.contextDependencies.add(this.options.from.liquid);
+        compilation.contextDependencies.add(this.options.from.schema);
 
         const preTransformCache = [...Object.keys(require.cache)];
 
@@ -36,8 +50,6 @@ module.exports = class LiquidSchemaPlugin {
                     file
                 );
                 const fileStat = await fs.stat(fileLocation);
-
-                compilation.contextDependencies.add(fileLocation);
 
                 if (fileStat.isFile() && path.extname(file) === '.liquid') {
                     const relativeFilePath = path.relative(
@@ -70,7 +82,7 @@ module.exports = class LiquidSchemaPlugin {
             postTransformCache
                 .filter(module => !preTransformCache.includes(module))
                 .forEach(module => {
-                    compilation.contextDependencies.add(module);
+                    compilation.contextDependencies.add(path.dirname(module));
                     compilation.fileDependencies.add(module);
                     delete require.cache[module];
                 });
