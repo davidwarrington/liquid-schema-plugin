@@ -24,7 +24,7 @@
     "webpack"
   ],
   "dependencies": {
-    "fs-extra": "^8.1.0",
+    "fs-extra": "^9.0.0",
     "schema-utils": "^2.6.1",
     "webpack": "^5.17.0",
     "webpack-sources": "^1.4.3"
